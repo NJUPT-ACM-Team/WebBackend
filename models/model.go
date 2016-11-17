@@ -12,7 +12,8 @@ import (
 )
 
 type Model struct {
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	Table string
 }
 
 func (this *Model) OpenDB() error {
@@ -56,8 +57,8 @@ func (this *Model) GenerateInsertSQL(st interface{}, table string, excepts []str
 	return fmt.Sprintf("INSERT INTO %s %s VALUES %s", table, cols, vals), nil
 }
 
-func (this *Model) InlineInsert(st interface{}, table string, excepts []string) (int, error) {
-	sql_insert, err := this.GenerateInsertSQL(st, table, excepts)
+func (this *Model) InlineInsert(st interface{}, excepts []string) (int, error) {
+	sql_insert, err := this.GenerateInsertSQL(st, this.Table, excepts)
 	if err != nil {
 		return 0, err
 	}
@@ -65,6 +66,7 @@ func (this *Model) InlineInsert(st interface{}, table string, excepts []string) 
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 	_, err = tx.NamedExec(sql_insert, st)
 	if err != nil {
 		return 0, err

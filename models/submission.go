@@ -30,6 +30,10 @@ type SubmissionModel struct {
 	Model
 }
 
+func NewSubmissionModel() *SubmissionModel {
+	return &SubmissionModel{Model{Table: "Submissions"}}
+}
+
 func (this *SubmissionModel) Validate(sub *Submission) error {
 	if sub.IsContest == true {
 		if sub.CPIdFK == 0 {
@@ -58,7 +62,7 @@ func (this *SubmissionModel) Insert(sub *Submission) (int, error) {
 	if err := this.Validate(sub); err != nil {
 		return 0, err
 	}
-	last_insert_id, err := this.InlineInsert(sub, "Submissions", []string{"run_id"})
+	last_insert_id, err := this.InlineInsert(sub, []string{"run_id"})
 	if err != nil {
 		return 0, err
 	}
